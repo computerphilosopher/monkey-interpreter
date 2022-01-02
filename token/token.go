@@ -1,10 +1,10 @@
-package main
+package token
 
-type Token int
+type TokenType int
 
 const (
 	Illegal = iota
-	Eof
+	EOF
 	Ident
 	Int
 	Assign
@@ -18,3 +18,8 @@ const (
 	Function
 	Let
 )
+
+type Token struct {
+	Type    TokenType
+	Literal string
+}
