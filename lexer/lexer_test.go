@@ -8,13 +8,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Helper(t *testing.T, input string, expectedTokens []token.Token) {
+
+	lexer := lexer.NewLexer(input)
+	for _, expected := range expectedTokens {
+		tok := lexer.NextToken()
+		assert.Equal(t, expected.Type, tok.Type)
+		assert.Equal(t, expected.Literal, tok.Literal)
+	}
+}
+
 func TestSingleToken(t *testing.T) {
 
 	input := "=+(){},;"
-	tests := []struct {
-		Type    token.TokenType
-		Literal string
-	}{
+	expected := []token.Token{
 		{token.Assign, "="},
 		{token.Plus, "+"},
 		{token.LeftParen, "("},
@@ -26,10 +33,5 @@ func TestSingleToken(t *testing.T) {
 		{token.EOF, ""},
 	}
 
-	lexer := lexer.NewLexer(input)
-	for _, expected := range tests {
-		tok := lexer.NextToken()
-		assert.Equal(t, expected.Type, tok.Type)
-		assert.Equal(t, expected.Literal, tok.Literal)
-	}
+	Helper(t, input, expected)
 }
