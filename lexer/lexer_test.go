@@ -1,13 +1,14 @@
-package main
+package lexer_test
 
 import (
 	"testing"
 
+	"github.com/computerphilosopher/monkey/lexer"
 	"github.com/computerphilosopher/monkey/token"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNextToken(t *testing.T) {
+func TestSingleToken(t *testing.T) {
 
 	input := "=+(){},;"
 	tests := []struct {
@@ -25,11 +26,10 @@ func TestNextToken(t *testing.T) {
 		{token.EOF, ""},
 	}
 
-	lexer := NewLexer(input)
+	lexer := lexer.NewLexer(input)
 	for _, expected := range tests {
 		tok := lexer.NextToken()
-		assert.Equal(t, tok.Type, expected.Type)
-		assert.Equal(t, tok.Literal, expected.Literal)
+		assert.Equal(t, expected.Type, tok.Type)
+		assert.Equal(t, expected.Literal, tok.Literal)
 	}
-
 }
