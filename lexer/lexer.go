@@ -46,7 +46,7 @@ func isLetter(ch rune) bool {
 		ch == '_'
 }
 
-func (lexer *Lexer) readIdent() token.Token {
+func (lexer *Lexer) readStringToken() token.Token {
 	if !isLetter(lexer.ch) && !unicode.IsDigit(lexer.ch) {
 		return token.Token{
 			Type: token.Illegal,
@@ -91,7 +91,7 @@ func (lexer *Lexer) NextToken() token.Token {
 				Literal: runeToString(lexer.ch),
 			}
 		}
-		return lexer.readIdent()
+		return lexer.readStringToken()
 	}()
 
 	lexer.stepForward()
