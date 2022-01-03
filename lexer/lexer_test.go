@@ -3,8 +3,8 @@ package lexer_test
 import (
 	"testing"
 
-	"github.com/computerphilosopher/monkey/lexer"
-	"github.com/computerphilosopher/monkey/token"
+	"github.com/computerphilosopher/monkey-interpreter/lexer"
+	"github.com/computerphilosopher/monkey-interpreter/token"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,4 +34,31 @@ func TestSingleToken(t *testing.T) {
 	}
 
 	Helper(t, input, expected)
+}
+
+func TestLetStatement(t *testing.T) {
+	varDeclare := "let five = 5;\n" +
+		"let ten = 10;"
+
+	expected := []token.Token{
+		{token.Let, "let"},
+		{token.Ident, "five"},
+		{token.Assign, "="},
+		{token.Int, "5"},
+		{token.Ident, "10"},
+		{token.Semicolon, ";"},
+		{token.Let, "let"},
+		{token.Ident, "ten"},
+		{token.Assign, "="},
+		{token.Int, "10"},
+	}
+
+	Helper(t, varDeclare, expected)
+
+	/*
+		funcDeclare := "let add = fn(x, y) {\n" +
+			"x + y;\n" +
+			"};"
+	*/
+
 }

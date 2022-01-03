@@ -35,3 +35,18 @@ var SingleToken map[rune]TokenType = map[rune]TokenType{
 	';':    Semicolon,
 	'\x00': EOF,
 }
+
+func GetIdentType(ident string) TokenType {
+	keywords := map[string]TokenType{
+		"let": Let,
+		"fn":  Function,
+	}
+
+	tokenType, isKeyword := keywords[ident]
+
+	if isKeyword {
+		return tokenType
+	}
+
+	return Ident
+}
