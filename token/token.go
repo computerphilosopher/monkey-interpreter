@@ -7,12 +7,16 @@ const (
 	EOF
 	Ident
 	Int
+	True
+	False
 	Bang
 	Assign
 	Plus
 	Minus
 	Star
 	Slash
+	LessThan
+	GreaterThan
 	Comma
 	Semicolon
 	LeftParen
@@ -21,6 +25,9 @@ const (
 	RightBrace
 	Function
 	Let
+	Return
+	If
+	Else
 )
 
 type Token struct {
@@ -35,6 +42,8 @@ var SingleToken map[rune]TokenType = map[rune]TokenType{
 	'-':    Minus,
 	'*':    Star,
 	'/':    Slash,
+	'<':    LessThan,
+	'>':    GreaterThan,
 	'(':    LeftParen,
 	')':    RightParen,
 	'{':    LeftBrace,
@@ -46,8 +55,13 @@ var SingleToken map[rune]TokenType = map[rune]TokenType{
 
 func GetIdentType(ident string) TokenType {
 	keywords := map[string]TokenType{
-		"let": Let,
-		"fn":  Function,
+		"let":    Let,
+		"fn":     Function,
+		"return": Return,
+		"if":     If,
+		"else":   Else,
+		"true":   True,
+		"false":  False,
 	}
 
 	tokenType, isKeyword := keywords[ident]
