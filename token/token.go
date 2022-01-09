@@ -7,8 +7,12 @@ const (
 	EOF
 	Ident
 	Int
+	Bang
 	Assign
 	Plus
+	Minus
+	Star
+	Slash
 	Comma
 	Semicolon
 	LeftParen
@@ -25,8 +29,12 @@ type Token struct {
 }
 
 var SingleToken map[rune]TokenType = map[rune]TokenType{
+	'!':    Bang,
 	'=':    Assign,
 	'+':    Plus,
+	'-':    Minus,
+	'*':    Star,
+	'/':    Slash,
 	'(':    LeftParen,
 	')':    RightParen,
 	'{':    LeftBrace,
