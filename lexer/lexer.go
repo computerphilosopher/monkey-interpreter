@@ -4,6 +4,7 @@ import (
 	"unicode"
 
 	"github.com/computerphilosopher/monkey-interpreter/token"
+	"github.com/sirupsen/logrus"
 )
 
 type Lexer struct {
@@ -23,13 +24,19 @@ func NewLexer(input string) *Lexer {
 }
 
 func (lexer *Lexer) stepForward() {
+
+	lexer.position = lexer.readPosition
+
 	if lexer.readPosition >= len(lexer.input) {
+		logrus.Debug("input: ", string(lexer.input))
+		logrus.Debug("last char: ", string(lexer.ch))
+		logrus.Debug("postion: ", lexer.position,
+			" readPoistion: ", lexer.readPosition)
 		lexer.ch = '\000'
 		return
 	}
 
 	lexer.ch = lexer.input[lexer.readPosition]
-	lexer.position = lexer.readPosition
 	lexer.readPosition += 1
 }
 
@@ -46,42 +53,62 @@ func isLetter(ch rune) bool {
 		ch == '_'
 }
 
-func (lexer *Lexer) readStringToken() token.Token {
-	if !isLetter(lexer.ch) && !unicode.IsDigit(lexer.ch) {
+func tokenTypeFunc(start rune) func(string) token.TokenType {
+	if isLetter(start) {
+		return token.GetIdentType
+	}
+	if unicode.IsDigit(start) {
+		return func(_ string) token.TokenType {
+			return token.Int
+		}
+	}
+	return func(_ string) token.TokenType {
+		return token.Illegal
+	}
+}
+
+func keepGoingFunc(start rune) func(rune) bool {
+	if isLetter(start) {
+		return isLetter
+	}
+	return unicode.IsDigit
+}
+
+func (lexer *Lexer) readStringToken(keepGoing func(rune) bool,
+	getTokenType func(string) token.TokenType) token.Token {
+	if !keepGoing(lexer.ch) {
 		return token.Token{
 			Type: token.Illegal,
 		}
 	}
 
-	keepCondition := func(ch rune) bool {
-		if isLetter(ch) {
-			return isLetter(ch)
-		}
-		return unicode.IsDigit(ch)
-	}
-
 	begin := lexer.position
-	for keepCondition(lexer.ch) {
+	for keepGoing(lexer.ch) {
 		lexer.stepForward()
 	}
-
 	end := lexer.position
-	ident := string(lexer.input[begin:end])
+
+	literal := string(lexer.input[begin:end])
+
+	lexer.position -= 1
+	lexer.readPosition -= 1
 
 	return token.Token{
-		Type:    token.GetIdentType(ident),
-		Literal: ident,
+		Type:    getTokenType(literal),
+		Literal: literal,
 	}
 }
 
 func (lexer *Lexer) skipWhitespace() {
-	for lexer.ch == ' ' {
+	isWhiteSpace := func(ch rune) bool {
+		return ch == ' ' || ch == '\n' || ch == '\t'
+	}
+	for isWhiteSpace(lexer.ch) {
 		lexer.stepForward()
 	}
 }
 
 func (lexer *Lexer) NextToken() token.Token {
-
 	lexer.skipWhitespace()
 	ret := func() token.Token {
 		if tokenType, isSingletoken :=
@@ -91,7 +118,8 @@ func (lexer *Lexer) NextToken() token.Token {
 				Literal: runeToString(lexer.ch),
 			}
 		}
-		return lexer.readStringToken()
+		return lexer.readStringToken(keepGoingFunc(lexer.ch),
+			tokenTypeFunc(lexer.ch))
 	}()
 
 	lexer.stepForward()

@@ -37,28 +37,39 @@ func TestSingleToken(t *testing.T) {
 }
 
 func TestLetStatement(t *testing.T) {
-	varDeclare := "let five = 5;\n" +
-		"let ten = 10;"
+	varDeclare := "let five = 5;"
 
 	expected := []token.Token{
 		{token.Let, "let"},
 		{token.Ident, "five"},
 		{token.Assign, "="},
 		{token.Int, "5"},
-		{token.Ident, "10"},
 		{token.Semicolon, ";"},
-		{token.Let, "let"},
-		{token.Ident, "ten"},
-		{token.Assign, "="},
-		{token.Int, "10"},
 	}
 
 	Helper(t, varDeclare, expected)
 
-	/*
-		funcDeclare := "let add = fn(x, y) {\n" +
-			"x + y;\n" +
-			"};"
-	*/
+	funcDeclare := "let add = fn(x, y) {\n" +
+		"x + y;\n" +
+		"};"
 
+	expected = []token.Token{
+		{token.Let, "let"},
+		{token.Ident, "add"},
+		{token.Assign, "="},
+		{token.Function, "fn"},
+		{token.LeftParen, "("},
+		{token.Ident, "x"},
+		{token.Comma, ","},
+		{token.Ident, "y"},
+		{token.RightParen, ")"},
+		{token.LeftBrace, "{"},
+		{token.Ident, "x"},
+		{token.Plus, "+"},
+		{token.Ident, "y"},
+		{token.Semicolon, ";"},
+		{token.RightBrace, "}"},
+	}
+
+	Helper(t, funcDeclare, expected)
 }
