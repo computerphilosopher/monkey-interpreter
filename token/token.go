@@ -11,6 +11,8 @@ const (
 	False
 	Bang
 	Assign
+	Equal
+	NotEqual
 	Plus
 	Minus
 	Star

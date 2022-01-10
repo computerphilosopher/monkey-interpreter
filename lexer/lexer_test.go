@@ -20,11 +20,13 @@ func Helper(t *testing.T, input string, expectedTokens []token.Token) {
 
 func TestSingleToken(t *testing.T) {
 
-	input := "!=+-*/(){},;"
+	input := "=!!=+==-*/(){},;"
 	expected := []token.Token{
-		{token.Bang, "!"},
 		{token.Assign, "="},
+		{token.Bang, "!"},
+		{token.NotEqual, "!="},
 		{token.Plus, "+"},
+		{token.Equal, "=="},
 		{token.Minus, "-"},
 		{token.Star, "*"},
 		{token.Slash, "/"},

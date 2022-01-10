@@ -4,7 +4,7 @@ import (
 	"unicode"
 
 	"github.com/computerphilosopher/monkey-interpreter/token"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type Lexer struct {
@@ -28,9 +28,9 @@ func (lexer *Lexer) stepForward() {
 	lexer.position = lexer.readPosition
 
 	if lexer.readPosition >= len(lexer.input) {
-		logrus.Debug("input: ", string(lexer.input))
-		logrus.Debug("last char: ", string(lexer.ch))
-		logrus.Debug("postion: ", lexer.position,
+		log.Debug("input: ", string(lexer.input))
+		log.Debug("last char: ", string(lexer.ch))
+		log.Debug("postion: ", lexer.position,
 			" readPoistion: ", lexer.readPosition)
 		lexer.ch = '\000'
 		return
@@ -108,15 +108,40 @@ func (lexer *Lexer) skipWhitespace() {
 	}
 }
 
+func (lexer *Lexer) peekChar() rune {
+	if lexer.readPosition >= len(lexer.input) {
+		return '\x00'
+	}
+	log.Debug("peek: ", string(lexer.input[lexer.readPosition]))
+	return lexer.input[lexer.readPosition]
+}
+
+func (lexer *Lexer) handleSingleToken() token.Token {
+	if lexer.ch == '!' && lexer.peekChar() == '=' {
+		lexer.stepForward()
+		return token.Token{
+			Type:    token.NotEqual,
+			Literal: "!=",
+		}
+	}
+	if lexer.ch == '=' && lexer.peekChar() == '=' {
+		lexer.stepForward()
+		return token.Token{
+			Type:    token.Equal,
+			Literal: "==",
+		}
+	}
+	return token.Token{
+		Type:    token.SingleToken[lexer.ch],
+		Literal: runeToString(lexer.ch),
+	}
+}
+
 func (lexer *Lexer) NextToken() token.Token {
 	lexer.skipWhitespace()
 	ret := func() token.Token {
-		if tokenType, isSingletoken :=
-			token.SingleToken[lexer.ch]; isSingletoken {
-			return token.Token{
-				Type:    tokenType,
-				Literal: runeToString(lexer.ch),
-			}
+		if _, isSingletoken := token.SingleToken[lexer.ch]; isSingletoken {
+			return lexer.handleSingleToken()
 		}
 		return lexer.readStringToken(keepGoingFunc(lexer.ch),
 			tokenTypeFunc(lexer.ch))
