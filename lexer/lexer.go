@@ -16,7 +16,7 @@ type Lexer struct {
 
 func NewLexer(input string) *Lexer {
 	ret := &Lexer{
-		input: []rune(input),
+		input: []rune(input + "\x00"),
 	}
 	ret.stepForward()
 
@@ -32,7 +32,6 @@ func (lexer *Lexer) stepForward() {
 		log.Debug("last char: ", string(lexer.ch))
 		log.Debug("postion: ", lexer.position,
 			" readPoistion: ", lexer.readPosition)
-		lexer.ch = '\000'
 		return
 	}
 
@@ -41,7 +40,7 @@ func (lexer *Lexer) stepForward() {
 }
 
 func runeToString(ch rune) string {
-	if ch == '\000' {
+	if ch == '\x00' {
 		return ""
 	}
 	return string(ch)
