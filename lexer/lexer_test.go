@@ -50,6 +50,7 @@ func TestLetStatement(t *testing.T) {
 		{token.Assign, "="},
 		{token.Int, "5"},
 		{token.Semicolon, ";"},
+		{token.EOF, ""},
 	}
 
 	Helper(t, varDeclare, expected)
@@ -75,6 +76,8 @@ func TestLetStatement(t *testing.T) {
 		{token.Ident, "y"},
 		{token.Semicolon, ";"},
 		{token.RightBrace, "}"},
+		{token.Semicolon, ";"},
+		{token.EOF, ""},
 	}
 
 	Helper(t, funcDeclare, expected)
@@ -113,6 +116,7 @@ func TestLetStatement(t *testing.T) {
 		{token.Return, "return"},
 		{token.False, "false"},
 		{token.RightBrace, "}"},
+		{token.EOF, ""},
 	}
 
 	Helper(t, conditionalFunc, expected)
