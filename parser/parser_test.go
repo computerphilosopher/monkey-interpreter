@@ -45,5 +45,25 @@ func TestLetStatement(t *testing.T) {
 		assert.Equal(tt.expectedIdentifier, letStmt.Name.TokenLiteral())
 
 	}
+}
 
+func TestReturnStatement(t *testing.T) {
+	assert := assert.New(t)
+
+	input := "return 5;\n" +
+		"return 10;\n" +
+		"return 993322;\n"
+
+	l := lexer.NewLexer(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	assert.Equal(0, len(p.Errors()))
+	assert.Equal(3, len(program.Statements))
+
+	for _, stmt := range program.Statements {
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		assert.True(ok)
+		assert.Equal("return", returnStmt.TokenLiteral())
+	}
 }

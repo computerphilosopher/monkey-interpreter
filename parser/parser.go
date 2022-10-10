@@ -50,6 +50,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.Let:
 		return p.parseLetStatement()
+	case token.Return:
+		return p.parseReturnStatement()
 	default:
 		return nil
 	}
@@ -71,6 +73,18 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	if !p.expectPeek(token.Assign) {
 		return nil
 	}
+
+	for p.curToken.Type != token.Semicolon {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+
+	p.nextToken()
 
 	for p.curToken.Type != token.Semicolon {
 		p.nextToken()
