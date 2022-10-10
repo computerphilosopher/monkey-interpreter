@@ -19,6 +19,8 @@ func TestLetStatement(t *testing.T) {
 	p := New(l)
 
 	program := p.ParseProgram()
+	assert.Equal(0, len(p.Errors()))
+
 	assert.NotNil(program)
 
 	assert.Equal(3, len(program.Statements))

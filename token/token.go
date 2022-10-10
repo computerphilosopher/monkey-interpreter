@@ -74,3 +74,33 @@ func GetIdentType(ident string) TokenType {
 
 	return Ident
 }
+
+var TokenTypeLiteral = map[TokenType]string{
+	Illegal:     "Illegal",
+	EOF:         "EOF",
+	Ident:       "Ident",
+	Int:         "Int",
+	True:        "True",
+	False:       "False",
+	Bang:        "Bang",
+	Assign:      "Assign",
+	Equal:       "Equal",
+	NotEqual:    "NotEqual",
+	Plus:        "Plus",
+	Minus:       "Minus",
+	Star:        "Star",
+	Slash:       "Slash",
+	LessThan:    "LessThan",
+	GreaterThan: "GreaterThan",
+	Comma:       "Comma",
+	Semicolon:   "Semicolon",
+	LeftParen:   "LeftParen",
+	RightParen:  "RightParen",
+	LeftBrace:   "LeftBrace",
+	RightBrace:  "RightBrace",
+	Function:    "Function",
+	Let:         "Let",
+	Return:      "Return",
+	If:          "If",
+	Else:        "Else",
+}

@@ -35,13 +35,15 @@ func lex(line string, out io.Writer) {
 func Start(reader io.Reader, writer io.Writer) {
 	scanner := bufio.NewScanner(reader)
 
-	fmt.Fprintf(writer, Prompt)
-	err := scan(scanner)
-	if err != nil {
-		log.Error(err)
-		return
-	}
+	for {
+		fmt.Fprintf(writer, Prompt)
+		err := scan(scanner)
+		if err != nil {
+			log.Error(err)
+			return
+		}
 
-	line := scanner.Text()
-	lex(line, writer)
+		line := scanner.Text()
+		lex(line, writer)
+	}
 }
