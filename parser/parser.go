@@ -74,9 +74,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	for p.curToken.Type != token.Semicolon {
-		p.nextToken()
-	}
+	p.getNextTokenUntilMeet(token.Semicolon)
 
 	return stmt
 }
@@ -86,9 +84,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	p.nextToken()
 
-	for p.curToken.Type != token.Semicolon {
-		p.nextToken()
-	}
+	p.getNextTokenUntilMeet(token.Semicolon)
 
 	return stmt
 }
@@ -106,4 +102,10 @@ func (p *Parser) peekError(t token.TokenType) {
 	err := fmt.Errorf("expected next token to be %s, got %s instead",
 		token.TokenTypeLiteral[t], token.TokenTypeLiteral[p.peekToken.Type])
 	p.errors = append(p.errors, err)
+}
+
+func (p *Parser) getNextTokenUntilMeet(t token.TokenType) {
+	for p.curToken.Type != t {
+		p.nextToken()
+	}
 }
