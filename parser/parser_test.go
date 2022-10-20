@@ -97,3 +97,23 @@ func TestString(t *testing.T) {
 
 	assert.Equal(t, "let myVar = anotherVar;", program.String())
 }
+
+func TestIdentifierExpression(t *testing.T) {
+	assert := assert.New(t)
+	input := "foobar;"
+
+	l := lexer.NewLexer(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	assert.Equal(0, len(p.Errors()))
+	assert.Equal(1, len(program.Statements))
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+
+	ident, ok := stmt.Expression.(*ast.Identifier)
+	assert.True(ok)
+	assert.Equal("foobar", ident.Value)
+	assert.Equal("foobar", ident.TokenLiteral())
+}
