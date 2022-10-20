@@ -5,6 +5,7 @@ import (
 
 	"github.com/computerphilosopher/monkey-interpreter/ast"
 	"github.com/computerphilosopher/monkey-interpreter/lexer"
+	"github.com/computerphilosopher/monkey-interpreter/token"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -66,4 +67,33 @@ func TestReturnStatement(t *testing.T) {
 		assert.True(ok)
 		assert.Equal("return", returnStmt.TokenLiteral())
 	}
+}
+
+func TestString(t *testing.T) {
+	program := &ast.Program{
+		Statements: []ast.Statement{
+			&ast.LetStatement{
+				Token: token.Token{
+					Type:    token.Let,
+					Literal: "let",
+				},
+				Name: &ast.Identifier{
+					Token: token.Token{
+						Type:    token.Ident,
+						Literal: "myVar",
+					},
+					Value: "myVar",
+				},
+				Value: &ast.Identifier{
+					Token: token.Token{
+						Type:    token.Ident,
+						Literal: "anotherVar",
+					},
+					Value: "anotherVar",
+				},
+			},
+		},
+	}
+
+	assert.Equal(t, "let myVar = anotherVar;", program.String())
 }
