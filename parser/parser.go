@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/computerphilosopher/monkey-interpreter/ast"
 	"github.com/computerphilosopher/monkey-interpreter/lexer"
@@ -29,6 +30,7 @@ func New(l *lexer.Lexer) *Parser {
 
 	p.prefixParseFns = map[token.TokenType]prefixParseFn{}
 	p.registerPrefix(token.Ident, p.parseIdentifier)
+	p.registerPrefix(token.Int, p.parseIntegerLiteral)
 	p.nextToken()
 	p.nextToken()
 	return p
@@ -127,6 +129,19 @@ func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
+	}
+}
+
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+	if err != nil {
+		p.errors = append(p.errors, fmt.Errorf("could not parse %q as integer", p.curToken.Literal))
+		return nil
+	}
+
+	return &ast.IntegerLiteral{
+		Token: p.curToken,
+		Value: value,
 	}
 }
 
