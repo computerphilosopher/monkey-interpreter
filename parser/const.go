@@ -1,5 +1,7 @@
 package parser
 
+import "github.com/computerphilosopher/monkey-interpreter/token"
+
 const (
 	_ int = iota
 	Lowest
@@ -10,3 +12,6 @@ const (
 	Prefix      // - or +
 	Call        // myFunction(x)
 )
+
+func noPrefixParseFnError(t token.TokenType) {
+}

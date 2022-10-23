@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/computerphilosopher/monkey-interpreter/token"
+import (
+	"strings"
+
+	"github.com/computerphilosopher/monkey-interpreter/token"
+)
 
 type Expression interface {
 	Node
@@ -33,4 +37,25 @@ func (literal *IntegerLiteral) TokenLiteral() string {
 }
 func (literal *IntegerLiteral) String() string {
 	return literal.Token.Literal
+}
+
+type PrefixExpression struct {
+	Token    token.Token
+	Operator string
+	Right    Expression
+}
+
+func (exp *PrefixExpression) expressionNode() {}
+
+func (exp *PrefixExpression) TokenLiteral() string {
+	return exp.Token.Literal
+}
+
+func (exp *PrefixExpression) String() string {
+	var out strings.Builder
+	out.WriteString("(")
+	out.WriteString(exp.Operator)
+	out.WriteString(exp.Right.String())
+	out.WriteString(")")
+	return out.String()
 }
