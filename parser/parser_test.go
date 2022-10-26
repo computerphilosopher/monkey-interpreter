@@ -173,3 +173,39 @@ func TestParsingPrefixExpression(t *testing.T) {
 		testIntegerLiteral(t, exp.Right, tt.integerValue)
 	}
 }
+
+func TestParsingInfixExpressions(t *testing.T) {
+	assert := assert.New(t)
+	infixTests := []struct {
+		input      string
+		leftValue  int64
+		operator   string
+		rightValue int64
+	}{
+		{"5 + 5;", 5, "+", 5},
+		{"5 - 5;", 5, "-", 5},
+		{"5 * 5;", 5, "*", 5},
+		{"5 / 5;", 5, "/", 5},
+		{"5 > 5;", 5, ">", 5},
+		{"5 < 5;", 5, "<", 5},
+		{"5 == 5;", 5, "==", 5},
+		{"5 != 5;", 5, "!=", 5},
+	}
+
+	for _, tt := range infixTests {
+		l := lexer.NewLexer(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		assert.Equal(0, len(p.Errors()))
+		assert.Equal(1, len(program.Statements))
+
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		assert.True(ok)
+
+		exp, ok := stmt.Expression.(*ast.InfixExpression)
+		assert.True(ok)
+		testIntegerLiteral(t, exp.Left, tt.leftValue)
+		assert.Equal(tt.operator, exp.Operator)
+		testIntegerLiteral(t, exp.Right, tt.rightValue)
+	}
+}

@@ -5,10 +5,10 @@ import "github.com/computerphilosopher/monkey-interpreter/token"
 const (
 	_ int = iota
 	Lowest
-	Equals      //==
+	Equals      //== or !=
 	LessGreater // < or >
-	Sum         // +
-	Product     // *
+	Sum         // - or +
+	Product     // * or /
 	Prefix      // - or +
 	Call        // myFunction(x)
 )
