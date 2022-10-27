@@ -98,6 +98,30 @@ func TestString(t *testing.T) {
 	assert.Equal(t, "let myVar = anotherVar;", program.String())
 }
 
+func testIdentifier(t *testing.T, exp ast.Expression, value string) {
+	assert := assert.New(t)
+	ident, ok := exp.(*ast.Identifier)
+	assert.True(ok)
+	assert.Equal(value, ident.Value)
+	assert.Equal(value, ident.TokenLiteral())
+}
+
+func testLiteralExpression(t *testing.T, exp ast.Expression, expected interface{}) {
+
+	switch v := expected.(type) {
+	case int:
+		testIntegerLiteral(t, exp, int64(v))
+		return
+	case int64:
+		testIntegerLiteral(t, exp, v)
+		return
+	case string:
+		testIdentifier(t, exp, v)
+		return
+	}
+	assert.False(t, true)
+}
+
 func TestIdentifierExpression(t *testing.T) {
 	assert := assert.New(t)
 	input := "foobar;"
@@ -111,11 +135,7 @@ func TestIdentifierExpression(t *testing.T) {
 
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(ok)
-
-	ident, ok := stmt.Expression.(*ast.Identifier)
-	assert.True(ok)
-	assert.Equal("foobar", ident.Value)
-	assert.Equal("foobar", ident.TokenLiteral())
+	testIdentifier(t, stmt.Expression, "foobar")
 }
 
 func TestIntegerLiteralExpression(t *testing.T) {
@@ -134,15 +154,23 @@ func TestIntegerLiteralExpression(t *testing.T) {
 
 	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
 	assert.True(ok)
-	assert.Equal(int64(5), literal.Value)
-	assert.Equal("5", literal.TokenLiteral())
-
+	testLiteralExpression(t, literal, 5)
 }
 
 func testIntegerLiteral(t *testing.T, literal ast.Expression, value int64) {
 	integer, ok := literal.(*ast.IntegerLiteral)
 	assert.True(t, ok)
 	assert.Equal(t, value, integer.Value)
+}
+
+func testInfixExpression(t *testing.T, exp ast.Expression,
+	left interface{}, operator string, right interface{}) {
+
+	opExp, ok := exp.(*ast.InfixExpression)
+	assert.True(t, ok)
+
+	testLiteralExpression(t, opExp.Left, left)
+	assert.Equal(t, operator, opExp.Operator)
 }
 
 func TestParsingPrefixExpression(t *testing.T) {
@@ -201,12 +229,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 
 		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 		assert.True(ok)
-
-		exp, ok := stmt.Expression.(*ast.InfixExpression)
-		assert.True(ok)
-		testIntegerLiteral(t, exp.Left, tt.leftValue)
-		assert.Equal(tt.operator, exp.Operator)
-		testIntegerLiteral(t, exp.Right, tt.rightValue)
+		testInfixExpression(t, stmt.Expression, tt.leftValue, tt.operator, tt.rightValue)
 	}
 }
 
