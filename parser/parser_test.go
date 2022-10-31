@@ -118,6 +118,9 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected interface{
 	case string:
 		testIdentifier(t, exp, v)
 		return
+	case bool:
+		testBooleanLiteral(t, exp, v)
+		return
 	}
 	assert.False(t, true)
 }
@@ -161,6 +164,31 @@ func testIntegerLiteral(t *testing.T, literal ast.Expression, value int64) {
 	integer, ok := literal.(*ast.IntegerLiteral)
 	assert.True(t, ok)
 	assert.Equal(t, value, integer.Value)
+}
+
+func TestBooleanExpression(t *testing.T) {
+	assert := assert.New(t)
+	input := "true;"
+
+	l := lexer.NewLexer(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	assert.Equal(0, len(p.Errors()))
+	assert.Equal(1, len(program.Statements))
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+
+	literal, ok := stmt.Expression.(*ast.Boolean)
+	assert.True(ok)
+	testLiteralExpression(t, literal, true)
+}
+
+func testBooleanLiteral(t *testing.T, boolean ast.Expression, value bool) {
+	literal, ok := boolean.(*ast.Boolean)
+	assert.True(t, ok)
+	assert.Equal(t, value, literal.Value)
 }
 
 func testInfixExpression(t *testing.T, exp ast.Expression,
