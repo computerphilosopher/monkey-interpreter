@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"bytes"
 	"strings"
 
 	"github.com/computerphilosopher/monkey-interpreter/token"
@@ -67,5 +68,35 @@ func (exp *InfixExpression) String() string {
 	out.WriteString(" " + exp.Operator + " ")
 	out.WriteString(exp.Right.String())
 	out.WriteString(")")
+	return out.String()
+}
+
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (exp *IfExpression) expressionNode() {
+}
+
+func (exp *IfExpression) TokenLiteral() string {
+	return exp.Token.Literal
+}
+
+func (exp IfExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(exp.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(exp.Consequence.String())
+
+	if exp.Alternative != nil {
+		out.WriteString("else ")
+		out.WriteString(exp.Alternative.String())
+	}
+
 	return out.String()
 }

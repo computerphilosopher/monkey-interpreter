@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/computerphilosopher/monkey-interpreter/ast"
@@ -354,4 +355,60 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		actual := program.String()
 		assert.Equal(tt.expected, actual)
 	}
+}
+
+func TestIfExpression(t *testing.T) {
+	assert := assert.New(t)
+	input := `if (x < y) { x }`
+
+	l := lexer.NewLexer(input)
+	p := New(l)
+	program := p.ParseProgram()
+
+	assert.Equal(0, len(p.Errors()))
+	fmt.Printf("%+v\n", p.Errors())
+	assert.Equal(1, len(program.Statements))
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	assert.True(ok)
+	testInfixExpression(t, exp.Condition, "x", "<", "y")
+
+	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+
+	testIdentifier(t, consequence.Expression, "x")
+
+	assert.Nil(exp.Alternative)
+
+}
+
+func TestIfElseExpression(t *testing.T) {
+	assert := assert.New(t)
+	input := `if (x < y) { x } else { y }`
+
+	l := lexer.NewLexer(input)
+	p := New(l)
+	program := p.ParseProgram()
+
+	assert.Equal(0, len(p.Errors()))
+	fmt.Printf("%+v\n", p.Errors())
+	assert.Equal(1, len(program.Statements))
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	assert.True(ok)
+	testInfixExpression(t, exp.Condition, "x", "<", "y")
+
+	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+	testIdentifier(t, consequence.Expression, "x")
+
+	alternative, ok := exp.Alternative.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+	testIdentifier(t, alternative.Expression, "y")
 }
