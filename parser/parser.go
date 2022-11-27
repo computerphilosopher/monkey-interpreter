@@ -59,6 +59,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LessThan, p.parseInfixExpression)
 	p.registerInfix(token.GreaterThan, p.parseInfixExpression)
 
+	p.registerPrefix(token.LeftParen, p.parseGroupedExpression)
+
 	p.nextToken()
 	p.nextToken()
 	return p
@@ -264,4 +266,15 @@ func (p *Parser) curPrecedence() int {
 	}
 
 	return Lowest
+}
+
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	p.nextToken()
+
+	exp := p.parseExpression(Lowest)
+	if !p.expectPeek(token.RightParen) {
+		return nil
+	}
+
+	return exp
 }
