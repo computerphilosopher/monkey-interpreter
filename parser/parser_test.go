@@ -181,13 +181,13 @@ func TestBooleanExpression(t *testing.T) {
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
 	assert.True(ok)
 
-	literal, ok := stmt.Expression.(*ast.Boolean)
+	literal, ok := stmt.Expression.(*ast.BooleanLiteral)
 	assert.True(ok)
 	testLiteralExpression(t, literal, true)
 }
 
 func testBooleanLiteral(t *testing.T, boolean ast.Expression, value bool) {
-	literal, ok := boolean.(*ast.Boolean)
+	literal, ok := boolean.(*ast.BooleanLiteral)
 	assert.True(t, ok)
 	assert.Equal(t, value, literal.Value)
 }

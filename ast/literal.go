@@ -15,15 +15,15 @@ func (literal *IntegerLiteral) String() string {
 	return literal.Token.Literal
 }
 
-type Boolean struct {
+type BooleanLiteral struct {
 	Token token.Token
 	Value bool
 }
 
-func (boolean *Boolean) expressionNode() {}
-func (boolean *Boolean) TokenLiteral() string {
+func (boolean *BooleanLiteral) expressionNode() {}
+func (boolean *BooleanLiteral) TokenLiteral() string {
 	return boolean.Token.Literal
 }
-func (boolean *Boolean) String() string {
+func (boolean *BooleanLiteral) String() string {
 	return boolean.Token.Literal
 }
