@@ -394,7 +394,6 @@ func TestIfElseExpression(t *testing.T) {
 	program := p.ParseProgram()
 
 	assert.Equal(0, len(p.Errors()))
-	fmt.Printf("%+v\n", p.Errors())
 	assert.Equal(1, len(program.Statements))
 
 	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
