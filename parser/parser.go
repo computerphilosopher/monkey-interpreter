@@ -63,6 +63,8 @@ func New(l *lexer.Lexer) *Parser {
 
 	p.registerPrefix(token.If, p.parseIfExpression)
 
+	p.registerPrefix(token.Function, p.parseFunctionLiteral)
+
 	p.nextToken()
 	p.nextToken()
 	return p
@@ -328,4 +330,57 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	return expression
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+
+	identifiers := []*ast.Identifier{}
+	if p.peekToken.Type == token.RightParen {
+		p.nextToken()
+		return identifiers
+	}
+
+	p.nextToken()
+
+	ident := &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+	identifiers = append(identifiers, ident)
+
+	for p.peekToken.Type == token.Comma {
+		p.nextToken()
+		p.nextToken()
+
+		ident := &ast.Identifier{
+			Token: p.curToken,
+			Value: p.curToken.Literal,
+		}
+
+		identifiers = append(identifiers, ident)
+	}
+
+	if !p.expectPeek(token.RightParen) {
+		return nil
+	}
+
+	return identifiers
+}
+
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	literal := &ast.FunctionLiteral{
+		Token: p.curToken,
+	}
+	if !p.expectPeek(token.LeftParen) {
+		return nil
+	}
+
+	literal.Parameters = p.parseFunctionParameters()
+	if !p.expectPeek(token.LeftBrace) {
+		return nil
+	}
+
+	literal.Body = p.parseBlockStatement()
+
+	return literal
 }
