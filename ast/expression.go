@@ -100,3 +100,32 @@ func (exp IfExpression) String() string {
 
 	return out.String()
 }
+
+type CallExpression struct {
+	Token     token.Token
+	Function  Expression
+	Arguments []Expression
+}
+
+func (exp *CallExpression) expressionNode() {
+}
+
+func (exp *CallExpression) TokenLiteral() string {
+	return exp.Token.Literal
+}
+
+func (exp *CallExpression) String() string {
+	out := strings.Builder{}
+
+	arguments := []string{}
+	for _, arg := range exp.Arguments {
+		arguments = append(arguments, arg.String())
+	}
+
+	out.WriteString(exp.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(arguments, ", "))
+	out.WriteString(")")
+
+	return out.String()
+}

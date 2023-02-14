@@ -24,6 +24,7 @@ func precedences() map[token.TokenType]int {
 		token.Minus:       Sum,
 		token.Slash:       Product,
 		token.Star:        Product,
+		token.LeftParen:   Call,
 	}
 }
 
@@ -58,6 +59,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.Star, p.parseInfixExpression)
 	p.registerInfix(token.LessThan, p.parseInfixExpression)
 	p.registerInfix(token.GreaterThan, p.parseInfixExpression)
+	p.registerInfix(token.LeftParen, p.parseCallExpression)
 
 	p.registerPrefix(token.LeftParen, p.parseGroupedExpression)
 
@@ -383,4 +385,38 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	literal.Body = p.parseBlockStatement()
 
 	return literal
+}
+
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{
+		Token:    p.curToken,
+		Function: function,
+	}
+	exp.Arguments = p.parseCallArguments()
+	return exp
+}
+
+func (p *Parser) parseCallArguments() []ast.Expression {
+	args := []ast.Expression{}
+
+	if p.peekToken.Type == token.RightParen {
+		p.nextToken()
+		return args
+	}
+
+	p.nextToken()
+
+	args = append(args, p.parseExpression(Lowest))
+
+	for p.peekToken.Type == token.Comma {
+		p.nextToken()
+		p.nextToken()
+		args = append(args, p.parseExpression(Lowest))
+	}
+
+	if !p.expectPeek(token.RightParen) {
+		return nil
+	}
+
+	return args
 }

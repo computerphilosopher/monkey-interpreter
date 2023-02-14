@@ -344,6 +344,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"!(true == true)",
 			"(!(true == true))",
 		},
+		{
+			"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+			"add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+		},
+		{
+			"add(a + b + c * d / f + g)",
+			"add((((a + b) + ((c * d) / f)) + g))",
+		},
 	}
 	for _, tt := range tests {
 		l := lexer.NewLexer(tt.input)
@@ -475,4 +483,30 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	assert.True(ok)
 
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
+}
+
+func TestCallExpressionParsing(t *testing.T) {
+	assert := assert.New(t)
+	input := "add(1, 2 * 3, 4 + 5);"
+
+	l := lexer.NewLexer(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	assert.Equal(0, len(p.Errors()))
+	assert.Equal(1, len(program.Statements))
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	assert.True(ok)
+
+	exp, ok := stmt.Expression.(*ast.CallExpression)
+	assert.True(ok)
+
+	testIdentifier(t, exp.Function, "add")
+
+	assert.Equal(3, len(exp.Arguments))
+
+	testLiteralExpression(t, exp.Arguments[0], 1)
+	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
 }
