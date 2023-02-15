@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/computerphilosopher/monkey-interpreter/ast"
@@ -13,38 +14,33 @@ import (
 func TestLetStatement(t *testing.T) {
 	assert := assert.New(t)
 
-	input := "let x = 5;\n" +
-		"let y = 10;\n" +
-		"let foobar = 838383;\n"
-
-	l := lexer.NewLexer(input)
-	p := New(l)
-
-	program := p.ParseProgram()
-	assert.Equal(0, len(p.Errors()))
-
-	assert.NotNil(program)
-
-	assert.Equal(3, len(program.Statements))
-
 	tests := []struct {
+		input              string
 		expectedIdentifier string
+		expectedValue      interface{}
 	}{
-		{"x"},
-		{"y"},
-		{"foobar"},
+		{"let x = 5;", "x", 5},
+		{"let y = true;", "y", true},
+		{"let foobar = y;", "foobar", "y"},
 	}
 
-	for i, tt := range tests {
-		stmt := program.Statements[i]
+	for _, tt := range tests {
+		l := lexer.NewLexer(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		assert.Equal(0, len(p.Errors()))
+		assert.Equal(1, len(program.Statements))
 
+		stmt := program.Statements[0]
 		assert.Equal("let", stmt.TokenLiteral())
 
 		letStmt, ok := stmt.(*ast.LetStatement)
 		assert.True(ok)
 
 		assert.Equal(tt.expectedIdentifier, letStmt.Name.Value)
-		assert.Equal(tt.expectedIdentifier, letStmt.Name.TokenLiteral())
+
+		val := stmt.(*ast.LetStatement).Value
+		testLiteralExpression(t, val, tt.expectedValue)
 
 	}
 }
@@ -52,22 +48,30 @@ func TestLetStatement(t *testing.T) {
 func TestReturnStatement(t *testing.T) {
 	assert := assert.New(t)
 
-	input := "return 5;\n" +
-		"return 10;\n" +
-		"return 993322;\n"
+	test := []struct {
+		input         string
+		expectedValue int
+	}{
+		{"return 5;", 5},
+		{"return 10;", 10},
+		{"return 993322;", 993322},
+	}
 
-	l := lexer.NewLexer(input)
-	p := New(l)
+	for _, tt := range test {
+		l := lexer.NewLexer(tt.input)
+		p := New(l)
 
-	program := p.ParseProgram()
-	assert.Equal(0, len(p.Errors()))
-	assert.Equal(3, len(program.Statements))
+		program := p.ParseProgram()
+		assert.Equal(0, len(p.Errors()))
+		assert.Equal(1, len(program.Statements))
 
-	for _, stmt := range program.Statements {
-		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		returnStmt, ok := program.Statements[0].(*ast.ReturnStatement)
 		assert.True(ok)
 		assert.Equal("return", returnStmt.TokenLiteral())
+		assert.Equal(strconv.Itoa(tt.expectedValue), returnStmt.ReturnValue.TokenLiteral())
+
 	}
+
 }
 
 func TestString(t *testing.T) {
