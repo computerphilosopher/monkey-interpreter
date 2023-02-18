@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/computerphilosopher/monkey-interpreter/lexer"
+	"github.com/computerphilosopher/monkey-interpreter/parser"
 	"github.com/computerphilosopher/monkey-interpreter/token"
 
 	log "github.com/sirupsen/logrus"
@@ -44,6 +45,22 @@ func Start(reader io.Reader, writer io.Writer) {
 		}
 
 		line := scanner.Text()
-		lex(line, writer)
+		l := lexer.NewLexer(line)
+		p := parser.New(l)
+
+		program := p.ParseProgram()
+		if len(p.Errors()) != 0 {
+			printParserErrors(writer, p.Errors())
+			continue
+		}
+
+		io.WriteString(writer, program.String())
+		io.WriteString(writer, "\n")
+	}
+}
+
+func printParserErrors(out io.Writer, errors []error) {
+	for _, msg := range errors {
+		io.WriteString(out, "\t"+msg.Error()+"\n")
 	}
 }
