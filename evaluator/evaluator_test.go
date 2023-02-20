@@ -105,7 +105,6 @@ func TestIfElseExpression(t *testing.T) {
 		}
 		testNullObject(t, evaluated)
 	}
-
 }
 
 func testEval(input string) object.Object {
