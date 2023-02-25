@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/computerphilosopher/monkey-interpreter/ast"
 	"github.com/computerphilosopher/monkey-interpreter/object/object"
 )
@@ -44,8 +46,11 @@ func evalProgram(stmts []ast.Statement) object.Object {
 	var result object.Object
 	for _, statement := range stmts {
 		result = Eval(statement)
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue.Value
+		switch result := result.(type) {
+		case *object.ReturnValue:
+			return result.Value
+		case *object.Error:
+			return result
 		}
 	}
 
@@ -56,8 +61,13 @@ func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	var result object.Object
 	for _, statement := range block.Statements {
 		result = Eval(statement)
-		if result != nil && result.Type() == object.ReturnValueObject {
-			return result
+		if result != nil {
+			if result.Type() == object.ReturnValueObject {
+				return result
+			}
+			if result.Type() == object.ErrorObject {
+				return result
+			}
 		}
 	}
 	return result
@@ -77,7 +87,8 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinuxPrefixOperatorExpression(right)
 	default:
-		return Null
+		return newError("unkown operator: %s%s", operator,
+			right.Type())
 	}
 }
 
@@ -96,11 +107,11 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 
 func evalMinuxPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.IntegerObject {
-		return Null
+		return newError("unknown operator: -%s", right.Type())
 	}
 	rightInt, ok := right.(*object.Integer)
 	if !ok {
-		return Null
+		panic("cannot convert right operand to integer")
 	}
 	return &object.Integer{Value: -rightInt.Value}
 }
@@ -116,8 +127,14 @@ func evalInfixExpression(
 		return nativeBoolToBooleanObject(left == right)
 	case operator == "!=":
 		return nativeBoolToBooleanObject(left != right)
+	case left.Type() != right.Type():
+		return newError("type mismatch: %s %s %s",
+			left.Type(), operator, right.Type(),
+		)
 	default:
-		return Null
+		return newError("unknown operator: %s %s %s",
+			left.Type(), operator, right.Type(),
+		)
 	}
 }
 
@@ -146,7 +163,9 @@ func evalIntegerInfixExpression(
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
-		return Null
+		return newError("unknown operator: %s %s %s",
+			left.Type(), operator, right.Type(),
+		)
 	}
 }
 
@@ -163,4 +182,10 @@ func evalIfExpression(exp *ast.IfExpression) object.Object {
 
 func isTruthy(obj object.Object) bool {
 	return obj != Null && obj != False
+}
+
+func newError(format string, args ...interface{}) *object.Error {
+	return &object.Error{
+		Message: fmt.Sprintf(format, args...),
+	}
 }

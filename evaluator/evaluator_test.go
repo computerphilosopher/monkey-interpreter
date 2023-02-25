@@ -132,6 +132,53 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedMessage string
+	}{
+		{
+			"5 + true;",
+			"type mismatch: Integer + Boolean",
+		},
+		{
+			"5 + true; 5;",
+			"type mismatch: Integer + Boolean",
+		},
+		{
+			"-true",
+			"unknown operator: -Boolean",
+		},
+		{
+			"true + false",
+			"unknown operator: Boolean + Boolean",
+		},
+		{
+			"5; true + false; 5;",
+			"unknown operator: Boolean + Boolean",
+		},
+		{
+			`
+			if (10 > 1) {
+			  if (10 > 1) {
+			     return true + false;
+			  }
+			  return 1;
+			}
+			`,
+			"unknown operator: Boolean + Boolean",
+		},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		errObj, ok := evaluated.(*object.Error)
+		assert.True(t, ok)
+		assert.Equal(t, tt.expectedMessage, errObj.Message)
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.NewLexer(input)
 	p := parser.New(l)
