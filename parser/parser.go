@@ -127,7 +127,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	p.nextToken()
 
 	stmt.Value = p.parseExpression(Lowest)
-	if p.expectPeek(token.Semicolon) {
+	for p.peekToken.Type == token.Semicolon {
 		p.nextToken()
 	}
 
