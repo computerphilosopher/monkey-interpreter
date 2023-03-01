@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/computerphilosopher/monkey-interpreter/evaluator"
 	"github.com/computerphilosopher/monkey-interpreter/lexer"
 	"github.com/computerphilosopher/monkey-interpreter/parser"
 	"github.com/computerphilosopher/monkey-interpreter/token"
@@ -54,8 +55,11 @@ func Start(reader io.Reader, writer io.Writer) {
 			continue
 		}
 
-		io.WriteString(writer, program.String())
-		io.WriteString(writer, "\n")
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			io.WriteString(writer, evaluated.Inspect())
+			io.WriteString(writer, "\n")
+		}
 	}
 }
 
