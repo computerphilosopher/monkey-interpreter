@@ -7,6 +7,7 @@ import (
 
 	"github.com/computerphilosopher/monkey-interpreter/evaluator"
 	"github.com/computerphilosopher/monkey-interpreter/lexer"
+	"github.com/computerphilosopher/monkey-interpreter/object/object"
 	"github.com/computerphilosopher/monkey-interpreter/parser"
 	"github.com/computerphilosopher/monkey-interpreter/token"
 
@@ -36,6 +37,7 @@ func lex(line string, out io.Writer) {
 
 func Start(reader io.Reader, writer io.Writer) {
 	scanner := bufio.NewScanner(reader)
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Fprintf(writer, Prompt)
@@ -55,7 +57,7 @@ func Start(reader io.Reader, writer io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program)
+		evaluated := evaluator.Eval(program, env)
 		if evaluated != nil {
 			io.WriteString(writer, evaluated.Inspect())
 			io.WriteString(writer, "\n")
