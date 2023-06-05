@@ -201,6 +201,22 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
+func TestFunctionObject(t *testing.T) {
+	input := "fn(x) { x + 2; };"
+	evaluated := testEval(input)
+
+	fn, ok := evaluated.(*object.Function)
+	assert.True(t, ok)
+
+	assert.Equal(t, 1, len(fn.Parameters))
+	assert.Equal(t, "x", fn.Parameters[0].String())
+
+	expectedBody := "(x + 2)"
+
+	assert.Equal(t, expectedBody, fn.Body.String())
+
+}
+
 func testEval(input string) object.Object {
 	l := lexer.NewLexer(input)
 	p := parser.New(l)
